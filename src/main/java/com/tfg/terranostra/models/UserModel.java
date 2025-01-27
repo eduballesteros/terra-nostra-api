@@ -6,9 +6,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 @Entity
-
 @Table(name = "users")
-
 //Genera automáticamente Get, set, toString ...
 @Data
 
