@@ -36,6 +36,11 @@ public class SecurityConfig {
         return http.build();
     }
 
+    /**
+     * Método de encriptación de contraseña
+     * @return
+     * @author ebp 30/01/25
+     */
     @Bean
     public PasswordEncoder contraseniaEncriptada() {
         return new BCryptPasswordEncoder();
