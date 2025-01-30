@@ -11,18 +11,24 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/users") // Cambié la ruta a /users (plural)
+@RequestMapping("/api/users") //
 
 public class UserController {
 
     @Autowired
     private UserService userService;
 
-    @PostMapping
-    public ResponseEntity<String>signUpUser(@RequestBody UserDto userDto){
+    /**
+     * Endpoint para registrar un nuevo usuario en el sistema.
+     * @param userDto
+     * @return ResponseEntity<String>` con mensaje de éxito
+     * @author ebp 28/01/25
+     */
+    @PostMapping("/registro")
+    public ResponseEntity<String>aniadirUsuario(@Valid@RequestBody UserDto userDto){
 
         try {
-            UserModel user = userService.signUpUser(userDto);
+            UserModel user = userService.aniadirUsuario(userDto);
             return new ResponseEntity<>("Usuario registrado con exito. ID: "+ user.getId(), HttpStatus.CREATED);
         } catch (Exception e) {
             return new ResponseEntity<>("Error al añadir el usuario: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);

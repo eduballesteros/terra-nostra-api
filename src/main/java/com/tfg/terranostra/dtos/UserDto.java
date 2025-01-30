@@ -2,6 +2,7 @@ package com.tfg.terranostra.dtos;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 import java.time.LocalDate;
@@ -21,7 +22,7 @@ public class UserDto {
     @Email(message = "Debe ser un correo válido")
     private String email;
 
-    @NotBlank(message = "La contraseña no puede estar vacía")
+    @NotEmpty(message = "La contraseña no puede estar vacía")
     @Size(min = 6, message = "La contraseña debe tener al menos 6 caracteres")
     private String password;
 
