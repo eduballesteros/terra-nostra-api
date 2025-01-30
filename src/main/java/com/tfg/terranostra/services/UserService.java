@@ -4,6 +4,7 @@ import com.tfg.terranostra.dtos.UserDto;
 import com.tfg.terranostra.models.UserModel;
 import com.tfg.terranostra.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,6 +13,9 @@ public class UserService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     /**
      * Método que recibe un UserDto con los datos y lo guarda en la base de datos.
@@ -34,7 +38,9 @@ public class UserService {
             user.setPhoneNumber(userDto.getPhoneNumber());
             user.setAddress(userDto.getAddress());
             user.setBirthDate(userDto.getBirthDate());
-            user.setPassword(userDto.getPassword());  // Asegúrate de establecer la contraseña
+
+            String encryptedPassword = passwordEncoder.encode(userDto.getPassword());
+            user.setPassword(encryptedPassword);
 
             // Guardar el usuario en la base de datos
             return userRepository.save(user);

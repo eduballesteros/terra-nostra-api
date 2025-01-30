@@ -36,6 +36,10 @@ public class SecurityConfig {
         return http.build();
     }
 
+    @Bean
+    public PasswordEncoder contraseniaEncriptada() {
+        return new BCryptPasswordEncoder();
+    }
 
 
 
