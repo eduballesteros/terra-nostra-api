@@ -9,9 +9,9 @@ import lombok.Data;
 import java.math.BigDecimal;
 
 @Entity
-@Table(name = "products")
+@Table(name = "productos")
 @Data
-public class ProductModel {
+public class ProductoModel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,16 +19,16 @@ public class ProductModel {
 
     @Column(nullable = false)
     @NotBlank(message = "El nombre no puede estar vacío.")
-    private String name;
+    private String nombre;
 
     @Column(nullable = false)
     @NotBlank(message = "La descripción no puede estar vacía.")
-    private String description;
+    private String descripcion;
 
     @Column(nullable = false)
     @NotNull(message = "El precio no puede estar vacío.")
     @Positive(message = "El precio debe ser un valor positivo.")
-    private BigDecimal price;
+    private BigDecimal precio;
 
     @Column(nullable = false)
     @NotNull(message = "La cantidad en stock no puede estar vacía.")
@@ -37,8 +37,8 @@ public class ProductModel {
 
     @Column
     @NotBlank(message = "La categoría no puede estar vacía.")
-    private String category;
+    private String categoria;
 
     @Column
-    private String imageUrl;
+    private String imagenUrl;
 }
