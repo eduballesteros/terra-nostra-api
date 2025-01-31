@@ -1,13 +1,13 @@
-package com.tfg.terranostra;
+	package com.tfg.terranostra;
 
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
+	import org.junit.jupiter.api.Test;
+	import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest
-class TerraNostraApiApplicationTests {
+	@SpringBootTest
+	class TerraNostraApiApplicationTests {
 
-	@Test
-	void contextLoads() {
+		@Test
+		void contextLoads() {
+		}
+
 	}
-
-}
