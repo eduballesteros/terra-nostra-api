@@ -10,7 +10,7 @@ import lombok.Data;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "users")
+@Table(name = "usuarios")
 //Genera automáticamente Get, set, toString ...
 @Data
 
@@ -36,10 +36,9 @@ public class UsuarioModel {
     @Column
     @NotEmpty(message = "La contraseña no puede estar vacía")
     @Size(min = 6, message = "La contraseña debe tener al menos 6 caracteres")
-    private String contresenia;
+    private String contrasenia;
 
     @Column
-    @NotBlank(message = "La dirección no puede estar vacía")
     private String direccion;
 
     @Column
