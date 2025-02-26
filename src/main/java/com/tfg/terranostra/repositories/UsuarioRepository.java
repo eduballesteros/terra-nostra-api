@@ -13,6 +13,6 @@ public interface UsuarioRepository extends JpaRepository <UsuarioModel, Long>{
      * @return
      */
 
-    UsuarioModel findbyEmail(String email);
+    UsuarioModel findByEmail(String email);
 
 }
