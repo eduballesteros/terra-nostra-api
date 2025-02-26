@@ -1,4 +1,4 @@
-package com.tfg.terranostra.dtos;
+package com.tfg.terranostra.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

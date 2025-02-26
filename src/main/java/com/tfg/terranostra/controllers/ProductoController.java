@@ -1,6 +1,6 @@
 package com.tfg.terranostra.controllers;
 
-import com.tfg.terranostra.dtos.ProductoDto;
+import com.tfg.terranostra.dto.ProductoDto;
 import com.tfg.terranostra.models.ProductoModel;
 import com.tfg.terranostra.services.ProductoService;
 import org.springframework.beans.factory.annotation.Autowired;

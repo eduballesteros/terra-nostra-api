@@ -1,6 +1,6 @@
 package com.tfg.terranostra.services;
 
-import com.tfg.terranostra.dtos.ProductoDto;
+import com.tfg.terranostra.dto.ProductoDto;
 import com.tfg.terranostra.models.ProductoModel;
 import com.tfg.terranostra.repositories.ProductoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +19,7 @@ public class ProductoService {
             ProductoModel producto = new ProductoModel();
 
             // Asignar los valores del DTO al modelo
-            producto.setNombre(productoDto.getNombre()); // Cambiado a productDto.getName()
+            producto.setNombre(productoDto.getNombre());
             producto.setPrecio(productoDto.getPrecio());
             producto.setDescripcion(productoDto.getDescripcion());
             producto.setStock(productoDto.getStock());
