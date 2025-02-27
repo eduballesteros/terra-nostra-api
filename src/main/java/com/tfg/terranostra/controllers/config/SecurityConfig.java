@@ -1,10 +1,13 @@
 package com.tfg.terranostra.controllers.config;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
@@ -16,27 +19,29 @@ public class SecurityConfig {
     }
 
     /**
-     *Método que desabilita CSRF para permitir solicitudes POST desde clientes externos
+     * Configuración de seguridad para permitir login sin autenticación básica
      * @param http
      * @return
      * @throws Exception
-     * @author ebp 30/01/25
      */
     @Bean
-
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable())  // Deshabilitar CSRF si es necesario
+                .csrf(csrf -> csrf.disable())  // Deshabilitar CSRF si usas Postman
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/usuario/registro").permitAll()
-                        .anyRequest().authenticated()
+                        .requestMatchers("/api/usuario/registro", "/api/auth/login").permitAll()  // Permitir login y registro
+                        .anyRequest().permitAll()
                 )
-                .httpBasic(Customizer.withDefaults());  // Nueva forma recomendada
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Sin estado
+                .formLogin(form -> form.disable())  // Deshabilitar formularios
+                .httpBasic(httpBasic -> httpBasic.disable());  // Deshabilitar autenticación básica
 
         return http.build();
     }
 
 
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 }
-
-

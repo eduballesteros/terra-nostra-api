@@ -10,4 +10,6 @@ public class TerraNostraApiApplication {
 		SpringApplication.run(TerraNostraApiApplication.class, args);
 	}
 
+
+
 }

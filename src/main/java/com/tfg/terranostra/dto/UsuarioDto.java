@@ -35,4 +35,10 @@ public class UsuarioDto {
     @JsonProperty("fechaRegistro")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime fechaRegistro;
+
+    // Constructor específico para `AuthService`
+    public UsuarioDto(Long id, String email) {
+        this.id = id;
+        this.email = email;
+    }
 }

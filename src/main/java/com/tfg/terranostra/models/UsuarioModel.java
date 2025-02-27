@@ -6,12 +6,14 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "usuarios")
-//Genera automáticamente Get, set, toString ...
+@NoArgsConstructor
 @Data
 
 public class UsuarioModel {
@@ -45,6 +47,6 @@ public class UsuarioModel {
     private String telefono;
 
     @Column
-    private LocalDate fechaNacimiento; // Campo para la fecha de nacimiento
+    private LocalDateTime fechaRegistro; // Campo para la fecha de nacimiento
 
 }
