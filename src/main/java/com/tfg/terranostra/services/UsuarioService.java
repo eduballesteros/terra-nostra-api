@@ -35,7 +35,7 @@ public class UsuarioService {
         UsuarioModel user = new UsuarioModel();
         user.setNombre(userDto.getNombre());
         user.setApellido(userDto.getApellido());
-        user.setContrasenia(passwordEncoder.encode(userDto.getContrasenia())); // Cifrar contraseña
+        user.setContrasenia(userDto.getContrasenia()); // Cifrar contraseña
         user.setEmail(userDto.getEmail());
         user.setDireccion(userDto.getDireccion());
         user.setTelefono(userDto.getTelefono());

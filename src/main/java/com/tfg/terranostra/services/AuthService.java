@@ -5,6 +5,7 @@ import com.tfg.terranostra.dto.UsuarioDto;
 import com.tfg.terranostra.models.UsuarioModel;
 import com.tfg.terranostra.repositories.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -37,11 +38,16 @@ public class AuthService {
         UsuarioModel usuarioModel = usuarioOpt.get();
         System.out.println("✅ Usuario encontrado: " + usuarioModel.getEmail());
 
-        if (!passwordEncoder.matches(loginDto.getContrasenia(), usuarioModel.getContrasenia())) {
-            System.out.println("🔑 Contraseña incorrecta para el usuario: " + usuarioModel.getEmail());
+        System.out.println("🔑 Contraseña ingresada (texto plano desde el backend): " + loginDto.getContrasenia());
+        System.out.println("🔐 Contraseña almacenada en BD (encriptada): " + usuarioModel.getContrasenia());
+
+        boolean match = passwordEncoder.matches(loginDto.getContrasenia(), usuarioModel.getContrasenia());
+        System.out.println("🔎 ¿Las contraseñas coinciden? " + match);
+
+        if (!match) {
+            System.out.println("❌ Las contraseñas NO coinciden.");
             return null;
         }
-
         System.out.println("✅ Inicio de sesión exitoso para: " + usuarioModel.getEmail());
         return new UsuarioDto(usuarioModel.getId(), usuarioModel.getEmail());
     }
