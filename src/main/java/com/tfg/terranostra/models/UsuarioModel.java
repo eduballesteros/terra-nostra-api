@@ -49,4 +49,7 @@ public class UsuarioModel {
     @Column
     private LocalDateTime fechaRegistro; // Campo para la fecha de nacimiento
 
+    @Column
+    private String rol;
+
 }

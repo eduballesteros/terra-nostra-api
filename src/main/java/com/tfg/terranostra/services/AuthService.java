@@ -37,9 +37,7 @@ public class AuthService {
 
         UsuarioModel usuarioModel = usuarioOpt.get();
         System.out.println("✅ Usuario encontrado: " + usuarioModel.getEmail());
-
-        System.out.println("🔑 Contraseña ingresada (texto plano desde el backend): " + loginDto.getContrasenia());
-        System.out.println("🔐 Contraseña almacenada en BD (encriptada): " + usuarioModel.getContrasenia());
+        System.out.println("🎭 Rol en la base de datos: " + usuarioModel.getRol());
 
         boolean match = passwordEncoder.matches(loginDto.getContrasenia(), usuarioModel.getContrasenia());
         System.out.println("🔎 ¿Las contraseñas coinciden? " + match);
@@ -48,7 +46,16 @@ public class AuthService {
             System.out.println("❌ Las contraseñas NO coinciden.");
             return null;
         }
+
         System.out.println("✅ Inicio de sesión exitoso para: " + usuarioModel.getEmail());
-        return new UsuarioDto(usuarioModel.getId(), usuarioModel.getEmail());
+        System.out.println("🎭 Rol antes de crear UsuarioDto: " + usuarioModel.getRol());
+
+        // 📌 Solución: Asegurar que el rol se pasa correctamente
+        UsuarioDto usuarioDto = new UsuarioDto(usuarioModel.getId(), usuarioModel.getEmail(), usuarioModel.getRol());
+
+        System.out.println("📤 UsuarioDto generado: " + usuarioDto);
+
+        return usuarioDto;
     }
+
 }

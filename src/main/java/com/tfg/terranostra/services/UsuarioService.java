@@ -39,6 +39,9 @@ public class UsuarioService {
         user.setEmail(userDto.getEmail());
         user.setDireccion(userDto.getDireccion());
         user.setTelefono(userDto.getTelefono());
+        user.setFechaRegistro(userDto.getFechaRegistro());
+        user.setRol("ROLE_ADMIN"); // Asignar "ROLE_USER" por defecto
+
 
         // Guardar el usuario en la base de datos
         return usuarioRepository.save(user);
