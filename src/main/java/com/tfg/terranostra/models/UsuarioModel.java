@@ -8,14 +8,12 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "usuarios")
 @NoArgsConstructor
 @Data
-
 public class UsuarioModel {
 
     @Id
@@ -30,7 +28,7 @@ public class UsuarioModel {
     @NotBlank(message = "El apellido no puede estar vacío")
     private String apellido;
 
-    @Column
+    @Column(unique = true) // Asegura que el email no se repita en la BD
     @NotBlank(message = "El correo no puede estar vacío")
     @Email(message = "Debe ser un correo válido")
     private String email;
@@ -47,7 +45,7 @@ public class UsuarioModel {
     private String telefono;
 
     @Column
-    private LocalDateTime fechaRegistro; // Campo para la fecha de nacimiento
+    private LocalDateTime fechaRegistro;
 
     @Column
     private String rol;

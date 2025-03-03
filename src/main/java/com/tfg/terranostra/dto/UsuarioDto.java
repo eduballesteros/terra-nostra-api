@@ -6,10 +6,15 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.time.LocalDateTime;
 
 @Data
+@NoArgsConstructor 
+@AllArgsConstructor
 public class UsuarioDto {
 
     private Long id;
@@ -29,7 +34,6 @@ public class UsuarioDto {
     private String contrasenia;
 
     private String telefono;
-
     private String direccion;
 
     @JsonProperty("fechaRegistro")
@@ -38,10 +42,24 @@ public class UsuarioDto {
 
     private String rol;
 
-    // Constructor específico para `AuthService`
-    public UsuarioDto(Long id, String email, String rol) {
+    public UsuarioDto(long id,
+                      @NotBlank(message = "El nombre no puede estar vacío") String nombre,
+                      @NotBlank(message = "El apellido no puede estar vacío") String apellido,
+                      @NotBlank(message = "El correo no puede estar vacío") @Email(message = "Debe ser un correo válido") String email,
+                      String telefono,
+                      String direccion,
+                      LocalDateTime fechaRegistro,
+                      String rol) {
         this.id = id;
+        this.nombre = nombre;
+        this.apellido = apellido;
         this.email = email;
+        this.telefono = telefono;
+        this.direccion = direccion;
+        this.fechaRegistro = fechaRegistro;
         this.rol = rol;
+    }
+
+    public UsuarioDto(long id, @NotBlank(message = "El correo no puede estar vacío") @Email(message = "Debe ser un correo válido") String email, String rol) {
     }
 }

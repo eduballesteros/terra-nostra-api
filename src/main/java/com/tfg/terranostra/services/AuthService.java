@@ -4,8 +4,9 @@ import com.tfg.terranostra.dto.LoginDto;
 import com.tfg.terranostra.dto.UsuarioDto;
 import com.tfg.terranostra.models.UsuarioModel;
 import com.tfg.terranostra.repositories.UsuarioRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -14,6 +15,8 @@ import java.util.Optional;
 @Service
 public class AuthService {
 
+    private static final Logger logger = LoggerFactory.getLogger(AuthService.class);
+
     @Autowired
     private UsuarioRepository usuarioRepository;
 
@@ -21,41 +24,41 @@ public class AuthService {
     private PasswordEncoder passwordEncoder;
 
     /**
-     * Método que maneja el inicio de sesión
-     * @param loginDto Datos de inicio de sesión (email y contraseña)
-     * @return UsuarioDto si la autenticación es exitosa, `null` si falla
+     * 📌 Método que maneja el inicio de sesión.
+     *
+     * @param loginDto Datos de inicio de sesión (email y contraseña).
+     * @return UsuarioDto si la autenticación es exitosa, `null` si falla.
      */
     public UsuarioDto autenticarUsuario(LoginDto loginDto) {
-        System.out.println("📩 Intentando autenticar usuario con email: " + loginDto.getEmail());
+        logger.info("📩 Intentando autenticar usuario con email: {}", loginDto.getEmail());
 
         Optional<UsuarioModel> usuarioOpt = usuarioRepository.findByEmail(loginDto.getEmail());
 
         if (usuarioOpt.isEmpty()) {
-            System.out.println("❌ Usuario no encontrado en la base de datos");
+            logger.warn("❌ Usuario no encontrado en la base de datos: {}", loginDto.getEmail());
             return null;
         }
 
         UsuarioModel usuarioModel = usuarioOpt.get();
-        System.out.println("✅ Usuario encontrado: " + usuarioModel.getEmail());
-        System.out.println("🎭 Rol en la base de datos: " + usuarioModel.getRol());
+        logger.info("✅ Usuario encontrado: {}", usuarioModel.getEmail());
+        logger.debug("🎭 Rol en la base de datos: {}", usuarioModel.getRol());
 
+        // Verificar si la contraseña coincide
         boolean match = passwordEncoder.matches(loginDto.getContrasenia(), usuarioModel.getContrasenia());
-        System.out.println("🔎 ¿Las contraseñas coinciden? " + match);
+        logger.info("🔎 ¿Las contraseñas coinciden? {}", match);
 
         if (!match) {
-            System.out.println("❌ Las contraseñas NO coinciden.");
+            logger.error("❌ Contraseña incorrecta para el usuario: {}", loginDto.getEmail());
             return null;
         }
 
-        System.out.println("✅ Inicio de sesión exitoso para: " + usuarioModel.getEmail());
-        System.out.println("🎭 Rol antes de crear UsuarioDto: " + usuarioModel.getRol());
+        logger.info("✅ Inicio de sesión exitoso para: {}", usuarioModel.getEmail());
+        logger.debug("🎭 Rol antes de crear UsuarioDto: {}", usuarioModel.getRol());
 
-        // 📌 Solución: Asegurar que el rol se pasa correctamente
         UsuarioDto usuarioDto = new UsuarioDto(usuarioModel.getId(), usuarioModel.getEmail(), usuarioModel.getRol());
 
-        System.out.println("📤 UsuarioDto generado: " + usuarioDto);
+        logger.debug("📤 UsuarioDto generado: {}", usuarioDto);
 
         return usuarioDto;
     }
-
 }

@@ -29,7 +29,7 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())  // Deshabilitar CSRF si usas Postman
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/usuario/registro", "/api/auth/login").permitAll()  // Permitir login y registro
+                        .requestMatchers("/api/usuario/registro", "/api/auth/login").permitAll()
                         .anyRequest().permitAll()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Sin estado
@@ -39,10 +39,10 @@ public class SecurityConfig {
         return http.build();
     }
 
-
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+
 
 }
