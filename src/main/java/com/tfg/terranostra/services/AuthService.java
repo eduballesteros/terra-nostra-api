@@ -17,6 +17,15 @@ import org.springframework.stereotype.Service;
 import java.util.Optional;
 
 @Service
+/**
+ * Servicio de autenticación de usuarios.
+ * Proporciona métodos para autenticar a los usuarios en la aplicación.
+ * Valida credenciales y gestiona la autenticación en el contexto de seguridad.
+ *
+ * @author ebp
+ * @version 1.0
+ */
+
 public class AuthService {
 
     private static final Logger logger = LoggerFactory.getLogger(AuthService.class);
@@ -28,11 +37,16 @@ public class AuthService {
     private PasswordEncoder passwordEncoder;
 
     /**
-     * 📌 Método que maneja el inicio de sesión.
-     *
-     * @param loginDto Datos de inicio de sesión (email y contraseña).
-     * @return UsuarioDto si la autenticación es exitosa, `null` si falla.
+     * Maneja la autenticación de usuarios en la aplicación.
+     * - Verifica si el usuario existe en la base de datos.<br>
+     * - Compara la contraseña proporcionada con la almacenada en la base de datos.<br>
+     * - Si la autenticación es exitosa, devuelve un objeto {@link UsuarioDto} con la información del usuario.<br>
+     * - Si la autenticación falla, devuelve `null`.
+     * *
+     * @param loginDto Datos de inicio de sesión que incluyen email y contraseña.
+     * @return {@link UsuarioDto} con los datos del usuario autenticado o `null` si las credenciales son incorrectas.
      */
+
     public UsuarioDto autenticarUsuario(LoginDto loginDto) {
         logger.info("📩 Intentando autenticar usuario con email: {}", loginDto.getEmail());
 

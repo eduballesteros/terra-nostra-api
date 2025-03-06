@@ -4499,3 +4499,8 @@
 2025-03-06T13:10:46.939+01:00 DEBUG 7328 --- [http-nio-8081-exec-10] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Using 'application/json', given [application/json] and supported [application/json, application/*+json]
 2025-03-06T13:10:46.947+01:00 DEBUG 7328 --- [http-nio-8081-exec-10] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Writing [[ProductoDto(id=20, nombre=Té de Manzanilla Orgánico - 100g, descripcion=Manzanilla en hojas sueltas (truncated)...]
 2025-03-06T13:10:46.949+01:00 DEBUG 7328 --- [http-nio-8081-exec-10] o.s.web.servlet.DispatcherServlet        : Completed 200 OK
+2025-03-06T13:49:07.838+01:00  INFO 7328 --- [SpringApplicationShutdownHook] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2025-03-06T13:49:07.851+01:00  INFO 7328 --- [tomcat-shutdown] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2025-03-06T13:49:07.866+01:00  INFO 7328 --- [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2025-03-06T13:49:07.879+01:00  INFO 7328 --- [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2025-03-06T13:49:07.885+01:00  INFO 7328 --- [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.

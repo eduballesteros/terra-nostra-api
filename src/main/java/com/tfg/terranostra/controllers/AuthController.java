@@ -13,6 +13,14 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/auth")
 @CrossOrigin(origins = "*")
+
+/**
+ * Controlador para la autenticación de usuarios en la aplicación.
+ * Proporciona endpoints para el inicio de sesión de los usuarios.
+ *
+ * @author ebp
+ * @version 1.0
+ */
 public class AuthController {
 
     private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
@@ -22,6 +30,17 @@ public class AuthController {
 
     @Autowired
     private AuthService authService;
+
+    /**
+     * Maneja el inicio de sesión de los usuarios.
+     * - Recibe un objeto `LoginDto` con las credenciales del usuario.<br>
+     * - Si las credenciales son correctas, devuelve un objeto `UsuarioDto` con los datos del usuario autenticado.<br>
+     * - Si las credenciales son incorrectas, devuelve un código de estado HTTP 401 con un mensaje de error.
+     *
+     * @param loginDto Objeto que contiene el correo electrónico y la contraseña del usuario.
+     * @return `ResponseEntity` con el objeto `UsuarioDto` si la autenticación es exitosa,
+     *         o un mensaje de error si las credenciales son incorrectas.
+     */
 
     @PostMapping("/login")
     public ResponseEntity<?> inicioSesion(@RequestBody LoginDto loginDto) {

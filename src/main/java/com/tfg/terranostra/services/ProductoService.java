@@ -13,6 +13,14 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+
+/**
+ * Servicio para la gestión de productos en la aplicación.
+ * Proporciona métodos para agregar, obtener, editar y eliminar productos.
+ *
+ * @author ebp
+ * @version 1.0
+ */
 public class ProductoService {
 
     @Autowired
@@ -21,9 +29,15 @@ public class ProductoService {
     private static final Logger logger = LoggerFactory.getLogger(ProductoService.class);
 
     /**
-     * 📌 Método para agregar un nuevo producto.
+     * Agrega un nuevo producto a la base de datos.
+     * - Convierte un objeto {@link ProductoDto} en {@link ProductoModel}.<br>
+     * - Guarda el producto en la base de datos.<br>
+     * - Registra logs de éxito o error.
+     *
      * @param productoDto Datos del producto a añadir.
+     * @throws RuntimeException Si ocurre un error al guardar el producto.
      */
+
     public void agregarProducto(ProductoDto productoDto) {
         ProductoModel producto = new ProductoModel();
         producto.setNombre(productoDto.getNombre());
@@ -45,9 +59,13 @@ public class ProductoService {
     }
 
     /**
-     * 📌 Método para obtener todos los productos.
-     * @return Lista de productos en formato DTO.
+     * Obtiene la lista de todos los productos almacenados en la base de datos.
+     * - Convierte los productos de {@link ProductoModel} a {@link ProductoDto} para la respuesta.<br>
+     * - Retorna la lista de productos en formato DTO.
+     *
+     * @return Lista de productos en formato {@link ProductoDto}.
      */
+
     public List<ProductoDto> obtenerTodosLosProductos() {
         return productoRepository.findAll().stream().map(producto -> {
             ProductoDto dto = new ProductoDto();
@@ -63,10 +81,15 @@ public class ProductoService {
     }
 
     /**
-     * 📌 Método para obtener un producto por ID.
-     * @param id ID del producto.
-     * @return Optional con el producto encontrado o vacío si no existe.
+     * Obtiene un producto de la base de datos según su ID.
+     * - Busca el producto en la base de datos.<br>
+     * - Si el producto existe, lo convierte a {@link ProductoDto}.<br>
+     * - Si el producto no existe, retorna un {@link Optional} vacío.
+     *
+     * @param id ID del producto a buscar.
+     * @return Un {@link Optional} con el producto si se encuentra, vacío si no.
      */
+
     public Optional<ProductoDto> obtenerProductoPorId(Long id) {
         Optional<ProductoModel> producto = productoRepository.findById(id);
         if (producto.isPresent()) {
@@ -84,9 +107,16 @@ public class ProductoService {
     }
 
     /**
-     * 🗑 Método para eliminar un producto por ID.
+     * Elimina un producto de la base de datos según su ID.
+     * - Verifica si el producto existe antes de eliminarlo.<br>
+     * - Si el producto no se encuentra, lanza una excepción.<br>
+     * - Registra logs sobre el proceso de eliminación.
+     *
      * @param id ID del producto a eliminar.
+     * @throws RuntimeException Si el producto no se encuentra en la base de datos.
      */
+
+
     public void eliminarProducto(Long id) {
         Optional<ProductoModel> productoOptional = productoRepository.findById(id);
         if (productoOptional.isPresent()) {
@@ -100,10 +130,17 @@ public class ProductoService {
     }
 
     /**
-     * ✏ Método para editar un producto existente.
-     * @param id ID del producto a editar.
+     * Actualiza los datos de un producto en la base de datos.
+     * - Busca el producto por su ID.<br>
+     * - Si existe, actualiza sus valores con los datos proporcionados en {@link ProductoDto}.<br>
+     * - Si el producto no existe, lanza una excepción.<br>
+     * - Registra logs sobre el proceso de actualización.
+     *
+     * @param id ID del producto a actualizar.
      * @param productoDto Datos actualizados del producto.
+     * @throws RuntimeException Si el producto no se encuentra en la base de datos.
      */
+
     public void editarProducto(Long id, ProductoDto productoDto) {
         Optional<ProductoModel> productoOptional = productoRepository.findById(id);
         if (productoOptional.isPresent()) {

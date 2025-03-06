@@ -19,6 +19,16 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/productos")
+
+/**
+ * Controlador para la gestión de productos en la aplicación.
+ * Proporciona endpoints para agregar, listar, editar, eliminar y obtener productos.
+ *
+ * @author ebp
+ * @version 1.0
+ */
+
+
 public class ProductoController {
 
     @Autowired
@@ -26,9 +36,19 @@ public class ProductoController {
 
     private static final Logger logger = LoggerFactory.getLogger(ProductoController.class);
 
+
     /**
-     * 📌 Guardar un producto
+     * Agrega un nuevo producto a la base de datos.
+     * - Valida los datos del producto antes de guardarlo.<br>
+     * - Si hay errores de validación, devuelve un código HTTP 400 con los detalles.<br>
+     * - En caso de éxito, devuelve el producto guardado con un código HTTP 201.
+     *
+     * @param productoDto Objeto que contiene la información del producto a agregar.
+     * @param result Objeto que maneja los errores de validación.
+     * @return `ResponseEntity` con el producto agregado o un mensaje de error si la validación falla.
      */
+
+
     @PostMapping("/guardar")
     public ResponseEntity<?> agregarProducto(@Valid @RequestBody ProductoDto productoDto, BindingResult result) {
         if (result.hasErrors()) {
@@ -52,8 +72,12 @@ public class ProductoController {
     }
 
     /**
-     * 📌 Listar todos los productos
+     * Obtiene la lista de todos los productos almacenados en la base de datos.
+     *
+     * @return `ResponseEntity` con una lista de productos o una lista vacía en caso de error.
      */
+
+
     @GetMapping("/listar")
     public ResponseEntity<List<ProductoDto>> listarProductos() {
         try {
@@ -67,8 +91,17 @@ public class ProductoController {
     }
 
     /**
-     * 🗑 Eliminar un producto por ID
+     * Elimina un producto de la base de datos según su ID.
+     *
+     * - Verifica si el producto existe antes de eliminarlo.<br>
+     * - Si el producto no se encuentra, devuelve un código HTTP 404.<br>
+     * - En caso de éxito, devuelve un mensaje confirmando la eliminación.
+     *
+     * @param id Identificador único del producto a eliminar.
+     * @return `ResponseEntity` con un mensaje de éxito o error.
      */
+
+
     @DeleteMapping("/eliminar/{id}")
     public ResponseEntity<?> eliminarProducto(@PathVariable Long id) {
         try {
@@ -88,8 +121,18 @@ public class ProductoController {
     }
 
     /**
-     * ✏ Editar un producto por ID
+     * Actualiza la información de un producto en la base de datos.
+     * - Valida los datos antes de actualizar.<br>
+     * - Si el producto no se encuentra, devuelve un código HTTP 404.<br>
+     * - Si la actualización es exitosa, devuelve un mensaje de confirmación.
+     *
+     * @param id Identificador único del producto a actualizar.
+     * @param productoActualizado Objeto `ProductoDto` con los nuevos datos del producto.
+     * @param result Objeto que maneja los errores de validación.
+     * @return `ResponseEntity` con un mensaje de éxito o error.
      */
+
+
     @PutMapping(value = "/editar/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> editarProducto(
             @PathVariable Long id,
@@ -124,8 +167,16 @@ public class ProductoController {
     }
 
     /**
-     * 📌 Obtener un producto por ID
+     * Obtiene los detalles de un producto según su ID.
+
+     * - Si el producto no se encuentra, devuelve un código HTTP 404 con un mensaje de error.<br>
+     * - En caso de éxito, devuelve la información del producto solicitado.
+     *
+     * @param id Identificador único del producto a buscar.
+     * @return `ResponseEntity` con los detalles del producto o un mensaje de error si no se encuentra.
      */
+
+
     @GetMapping("/obtener/{id}")
     public ResponseEntity<?> obtenerProductoPorId(@PathVariable Long id) {
         logger.info("📥 Solicitando producto con ID: {}", id);

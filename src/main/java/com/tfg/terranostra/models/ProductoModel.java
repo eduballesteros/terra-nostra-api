@@ -11,6 +11,15 @@ import java.math.BigDecimal;
 @Entity
 @Table(name = "productos")
 @Data
+
+/**
+ * Entidad que representa un producto en la base de datos.
+ * Contiene los atributos necesarios para gestionar los productos en la aplicación.
+ *
+ * @author ebp
+ * @version 1.0
+ */
+
 public class ProductoModel {
 
     @Id

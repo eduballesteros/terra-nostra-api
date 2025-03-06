@@ -7,6 +7,13 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 @Data
+/**
+ * Data Transfer Object (DTO) para manejar los datos de inicio de sesión de los usuarios.
+ * Contiene las validaciones necesarias para garantizar que los datos sean correctos.
+ *
+ * @author ebp
+ * @version 1.0
+ */
 public class LoginDto {
 
     @NotBlank(message = "El correo no puede estar vacío")

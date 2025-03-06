@@ -14,6 +14,14 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/usuario")
+
+/**
+ * Controlador para la gestión de usuarios en la aplicación.
+ * Proporciona endpoints para registrar, obtener, actualizar y eliminar usuarios.
+ *
+ * @author ebp
+ * @version 1.0
+ */
 public class UsuarioController {
 
     private static final Logger logger = LoggerFactory.getLogger(UsuarioController.class);
@@ -22,8 +30,15 @@ public class UsuarioController {
     private UsuarioService usuarioService;
 
     /**
-     * 📌 Endpoint para registrar un nuevo usuario.
+     * Registra un nuevo usuario en la base de datos.
+     * - Recibe los datos del usuario y los guarda en la base de datos.<br>
+     * - Devuelve un código HTTP 201 si el usuario se registra correctamente.<br>
+     * - En caso de error, devuelve un código HTTP 500 con un mensaje de error.
+     *
+     * @param userDto Objeto que contiene la información del usuario a registrar.
+     * @return `ResponseEntity` con un mensaje de éxito o error.
      */
+
     @PostMapping("/registro")
     public ResponseEntity<String> aniadirUsuario(@RequestBody UsuarioDto userDto) {
         logger.info("📝 Intentando registrar un nuevo usuario: {}", userDto.getEmail());
@@ -39,8 +54,12 @@ public class UsuarioController {
     }
 
     /**
-     * 📌 Endpoint para obtener todos los usuarios.
+     * Obtiene la lista de todos los usuarios registrados en la base de datos.
+     *
+     * @return `ResponseEntity` con una lista de usuarios o un código HTTP 500 en caso de error.
      */
+
+
     @GetMapping
     public ResponseEntity<List<UsuarioDto>> obtenerUsuarios() {
         logger.info("📢 Solicitando lista de usuarios...");
@@ -56,8 +75,16 @@ public class UsuarioController {
     }
 
     /**
-     * 📌 Endpoint para obtener un usuario por email.
+     * Obtiene los detalles de un usuario a través de su correo electrónico.
+     * - Si el usuario existe, devuelve sus datos con un código HTTP 200.<br>
+     * - Si el usuario no se encuentra, devuelve un código HTTP 404.<br>
+     * - En caso de error, devuelve un código HTTP 500.
+     *
+     * @param email Correo electrónico del usuario a buscar.
+     * @return `ResponseEntity` con los datos del usuario o un mensaje de error.
      */
+
+
     @GetMapping("/email/{email}")
     public ResponseEntity<UsuarioDto> obtenerUsuarioPorEmail(@PathVariable String email) {
         logger.info("🔎 Buscando usuario con email: {}", email);
@@ -78,8 +105,16 @@ public class UsuarioController {
     }
 
     /**
-     * 📌 Endpoint para actualizar un usuario por email.
+     * Actualiza la información de un usuario en la base de datos mediante su correo electrónico.
+     * - Si el usuario existe, se actualizan sus datos y se devuelve un código HTTP 200.<br>
+     * - Si el usuario no se encuentra, devuelve un código HTTP 404.<br>
+     * - En caso de error, devuelve un código HTTP 500.
+     *
+     * @param email Correo electrónico del usuario a actualizar.
+     * @param userDto Objeto con los nuevos datos del usuario.
+     * @return `ResponseEntity` con un mensaje de éxito o error.
      */
+
     @PutMapping("/email/{email}")
     public ResponseEntity<String> actualizarUsuarioPorEmail(@PathVariable String email, @RequestBody UsuarioDto userDto) {
         logger.info("✏️ Intentando actualizar usuario con email: {}", email);
@@ -101,8 +136,16 @@ public class UsuarioController {
     }
 
     /**
-     * 📌 Endpoint para eliminar un usuario por email.
+     * Elimina un usuario de la base de datos mediante su correo electrónico.
+     *
+     * - Si el usuario existe y se elimina correctamente, devuelve un código HTTP 200.<br>
+     * - Si el usuario no se encuentra, devuelve un código HTTP 404.<br>
+     * - En caso de error, devuelve un código HTTP 500.*
+     * @param email Correo electrónico del usuario a eliminar.
+     *
+     * @return `ResponseEntity` con un mensaje de éxito o error.
      */
+
     @DeleteMapping("/email/{email}")
     public ResponseEntity<String> eliminarUsuarioPorEmail(@PathVariable String email) {
         logger.info("🗑️ Intentando eliminar usuario con email: {}", email);

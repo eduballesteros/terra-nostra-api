@@ -15,6 +15,16 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor 
 @AllArgsConstructor
+
+/**
+ * Data Transfer Object (DTO) para representar a un usuario en la aplicación.
+ * Contiene los datos básicos del usuario y validaciones para asegurar la integridad de los datos.
+ *
+ * @author ebp
+ * @version 1.0
+ */
+
+
 public class UsuarioDto {
 
     private Long id;

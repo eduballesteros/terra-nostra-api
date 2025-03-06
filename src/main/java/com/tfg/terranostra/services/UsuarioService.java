@@ -15,6 +15,15 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+
+/**
+ * Servicio para la gestión de usuarios en la aplicación.
+ * Proporciona métodos para registrar, obtener, actualizar y eliminar usuarios.
+ *
+ * @author ebp
+ * @version 1.0
+ */
+
 public class UsuarioService {
 
     private static final Logger logger = LoggerFactory.getLogger(UsuarioService.class);
@@ -24,6 +33,18 @@ public class UsuarioService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    /**
+     * Registra un nuevo usuario en la base de datos.
+     * - Verifica si el correo ya está registrado.<br>
+     * - Cifra la contraseña antes de guardarla.<br>
+     * - Establece el rol por defecto como "ROLE_USER".<br>
+     * - Guarda el usuario en la base de datos y retorna el objeto guardado.
+     *
+     * @param userDto Datos del usuario a registrar.
+     * @return {@link UsuarioModel} con los datos del usuario registrado.
+     * @throws RuntimeException Si el correo ya está registrado.
+     */
 
     @Transactional
     public UsuarioModel aniadirUsuario(@Valid UsuarioDto userDto) {
@@ -50,6 +71,15 @@ public class UsuarioService {
         return savedUser;
     }
 
+    /**
+     * Obtiene la lista de todos los usuarios registrados en la base de datos.
+     * - Convierte los datos de {@link UsuarioModel} a {@link UsuarioDto}.<br>
+     * - Retorna la lista en formato DTO.
+     *
+     * @return Lista de usuarios en formato {@link UsuarioDto}.
+     */
+
+
     @Transactional(readOnly = true)
     public List<UsuarioDto> obtenerTodos() {
         logger.info("📋 Obteniendo la lista de todos los usuarios");
@@ -66,6 +96,15 @@ public class UsuarioService {
                 )).collect(Collectors.toList());
     }
 
+    /**
+     * Obtiene los datos de un usuario mediante su correo electrónico.
+     * - Si el usuario existe, devuelve un objeto {@link UsuarioDto}.<br>
+     * - Si no se encuentra, retorna `null`.
+     *
+     * @param email Correo electrónico del usuario a buscar.
+     * @return {@link UsuarioDto} con los datos del usuario o `null` si no se encuentra.
+     */
+
     @Transactional(readOnly = true)
     public UsuarioDto obtenerPorEmail(String email) {
         logger.info("🔍 Buscando usuario por email: {}", email);
@@ -81,6 +120,17 @@ public class UsuarioService {
                         usuario.getRol()
                 )).orElse(null);
     }
+
+    /**
+     * Actualiza la información de un usuario en la base de datos mediante su correo electrónico.
+     * - Verifica si el usuario existe antes de actualizarlo.<br>
+     * - Mantiene valores actuales para el ID y la fecha de registro si estos no se proporcionan.<br>
+     * - Guarda los cambios en la base de datos.
+     *
+     * @param email Correo electrónico del usuario a actualizar.
+     * @param userDto Datos actualizados del usuario.
+     * @return `true` si el usuario fue actualizado correctamente, `false` si no se encontró.
+     */
 
     @Transactional
     public boolean actualizarUsuarioPorEmail(String email, UsuarioDto userDto) {
@@ -119,6 +169,15 @@ public class UsuarioService {
         });
     }
 
+    /**
+     * Elimina un usuario de la base de datos mediante su correo electrónico.
+     * - Verifica si el usuario existe antes de eliminarlo.<br>
+     * - Si el usuario se encuentra, lo elimina y devuelve `true`.<br>
+     * - Si no se encuentra, devuelve `false`.
+     *
+     * @param email Correo electrónico del usuario a eliminar.
+     * @return `true` si el usuario fue eliminado correctamente, `false` si no se encontró.
+     */
 
     @Transactional
     public boolean eliminarUsuarioPorEmail(String email) {
