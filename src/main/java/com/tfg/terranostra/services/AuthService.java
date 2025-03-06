@@ -7,6 +7,10 @@ import com.tfg.terranostra.repositories.UsuarioRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -41,7 +45,6 @@ public class AuthService {
 
         UsuarioModel usuarioModel = usuarioOpt.get();
         logger.info("✅ Usuario encontrado: {}", usuarioModel.getEmail());
-        logger.debug("🎭 Rol en la base de datos: {}", usuarioModel.getRol());
 
         // Verificar si la contraseña coincide
         boolean match = passwordEncoder.matches(loginDto.getContrasenia(), usuarioModel.getContrasenia());
@@ -53,11 +56,31 @@ public class AuthService {
         }
 
         logger.info("✅ Inicio de sesión exitoso para: {}", usuarioModel.getEmail());
-        logger.debug("🎭 Rol antes de crear UsuarioDto: {}", usuarioModel.getRol());
 
-        UsuarioDto usuarioDto = new UsuarioDto(usuarioModel.getId(), usuarioModel.getEmail(), usuarioModel.getRol());
+        // 📌 Crear el objeto UsuarioDto con valores reales
+        UsuarioDto usuarioDto = new UsuarioDto(
+                usuarioModel.getId(),
+                usuarioModel.getNombre(),
+                usuarioModel.getApellido(),
+                usuarioModel.getEmail(),
+                usuarioModel.getContrasenia(),
+                usuarioModel.getTelefono(),
+                usuarioModel.getDireccion(),
+                usuarioModel.getFechaRegistro(),
+                usuarioModel.getRol()
+        );
 
-        logger.debug("📤 UsuarioDto generado: {}", usuarioDto);
+        UserDetails userDetails = User.withUsername(usuarioModel.getEmail())
+                .password(usuarioModel.getContrasenia())
+                .build();
+
+
+        UsernamePasswordAuthenticationToken authToken =
+                new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+
+        SecurityContextHolder.getContext().setAuthentication(authToken);
+
+        logger.info("🔐 Usuario autenticado correctamente en SecurityContext: {}", usuarioModel.getEmail());
 
         return usuarioDto;
     }

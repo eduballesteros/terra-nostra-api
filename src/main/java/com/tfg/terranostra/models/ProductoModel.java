@@ -39,6 +39,9 @@ public class ProductoModel {
     @NotBlank(message = "La categoría no puede estar vacía.")
     private String categoria;
 
-    @Column
-    private String imagenUrl;
+    @Lob
+    @Column(name = "imagen", columnDefinition = "LONGBLOB") // Para MySQL
+    @Basic(fetch = FetchType.LAZY) // Carga diferida para optimizar rendimiento
+    private byte[] imagen;
+
 }

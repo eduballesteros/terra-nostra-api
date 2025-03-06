@@ -1,5 +1,8 @@
 package com.tfg.terranostra.dto;
 
+import jakarta.persistence.Basic;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Lob;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -9,6 +12,8 @@ import java.math.BigDecimal;
 @Data
 
 public class ProductoDto {
+
+    private Long id;
 
     @NotBlank(message = "El nombre no puede estar vacío")
     private String nombre;
@@ -27,6 +32,8 @@ public class ProductoDto {
     @NotBlank(message = "La categoría no puede estar vacía")
     private String categoria;
 
-    private String imagenUrl;
+    @Lob
+    @Basic(fetch = FetchType.LAZY)
+    private byte[] imagen;
 
 }
