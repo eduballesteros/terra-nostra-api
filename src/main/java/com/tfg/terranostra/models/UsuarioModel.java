@@ -48,6 +48,8 @@ public class UsuarioModel {
     private LocalDateTime fechaRegistro;
 
     @Column
-    private String rol;
+    private LocalDateTime fechaModificacion;
 
+    @Column
+    private String rol;
 }

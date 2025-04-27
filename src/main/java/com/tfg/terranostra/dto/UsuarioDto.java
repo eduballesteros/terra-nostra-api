@@ -50,6 +50,11 @@ public class UsuarioDto {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime fechaRegistro;
 
+    @JsonProperty("fechaModificacion")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime fechaModificacion;
+
+
     private String rol;
 
     public UsuarioDto(long id,
@@ -59,14 +64,17 @@ public class UsuarioDto {
                       String telefono,
                       String direccion,
                       LocalDateTime fechaRegistro,
+                      LocalDateTime fechaModificacion,
                       String rol) {
         this.id = id;
         this.nombre = nombre;
         this.apellido = apellido;
         this.email = email;
+        this.contrasenia = contrasenia;
         this.telefono = telefono;
         this.direccion = direccion;
         this.fechaRegistro = fechaRegistro;
+        this.fechaModificacion = fechaModificacion;
         this.rol = rol;
     }
 

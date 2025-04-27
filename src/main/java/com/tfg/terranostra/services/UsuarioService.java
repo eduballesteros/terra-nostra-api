@@ -1,29 +1,27 @@
 package com.tfg.terranostra.services;
 
 import com.tfg.terranostra.dto.UsuarioDto;
+import com.tfg.terranostra.models.PasswordResetToken;
 import com.tfg.terranostra.models.UsuarioModel;
+import com.tfg.terranostra.repositories.PasswordResetTokenRepository;
 import com.tfg.terranostra.repositories.UsuarioRepository;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
-
-/**
- * Servicio para la gestión de usuarios en la aplicación.
- * Proporciona métodos para registrar, obtener, actualizar y eliminar usuarios.
- *
- * @author ebp
- * @version 1.0
- */
-
 public class UsuarioService {
 
     private static final Logger logger = LoggerFactory.getLogger(UsuarioService.class);
@@ -32,19 +30,16 @@ public class UsuarioService {
     private UsuarioRepository usuarioRepository;
 
     @Autowired
+    private PasswordResetTokenRepository tokenRepository;
+
+    @Autowired
+    private JavaMailSender mailSender;
+
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
-    /**
-     * Registra un nuevo usuario en la base de datos.
-     * - Verifica si el correo ya está registrado.<br>
-     * - Cifra la contraseña antes de guardarla.<br>
-     * - Establece el rol por defecto como "ROLE_USER".<br>
-     * - Guarda el usuario en la base de datos y retorna el objeto guardado.
-     *
-     * @param userDto Datos del usuario a registrar.
-     * @return {@link UsuarioModel} con los datos del usuario registrado.
-     * @throws RuntimeException Si el correo ya está registrado.
-     */
+    @Autowired
+    private CorreoService correoService;
 
     @Transactional
     public UsuarioModel aniadirUsuario(@Valid UsuarioDto userDto) {
@@ -58,7 +53,7 @@ public class UsuarioService {
         UsuarioModel user = new UsuarioModel();
         user.setNombre(userDto.getNombre());
         user.setApellido(userDto.getApellido());
-        user.setContrasenia(passwordEncoder.encode(userDto.getContrasenia())); // Cifrar contraseña
+        user.setContrasenia(passwordEncoder.encode(userDto.getContrasenia()));
         user.setEmail(userDto.getEmail());
         user.setDireccion(userDto.getDireccion());
         user.setTelefono(userDto.getTelefono());
@@ -70,15 +65,6 @@ public class UsuarioService {
 
         return savedUser;
     }
-
-    /**
-     * Obtiene la lista de todos los usuarios registrados en la base de datos.
-     * - Convierte los datos de {@link UsuarioModel} a {@link UsuarioDto}.<br>
-     * - Retorna la lista en formato DTO.
-     *
-     * @return Lista de usuarios en formato {@link UsuarioDto}.
-     */
-
 
     @Transactional(readOnly = true)
     public List<UsuarioDto> obtenerTodos() {
@@ -92,18 +78,10 @@ public class UsuarioService {
                         usuario.getTelefono(),
                         usuario.getDireccion(),
                         usuario.getFechaRegistro(),
+                        usuario.getFechaModificacion(),
                         usuario.getRol()
                 )).collect(Collectors.toList());
     }
-
-    /**
-     * Obtiene los datos de un usuario mediante su correo electrónico.
-     * - Si el usuario existe, devuelve un objeto {@link UsuarioDto}.<br>
-     * - Si no se encuentra, retorna `null`.
-     *
-     * @param email Correo electrónico del usuario a buscar.
-     * @return {@link UsuarioDto} con los datos del usuario o `null` si no se encuentra.
-     */
 
     @Transactional(readOnly = true)
     public UsuarioDto obtenerPorEmail(String email) {
@@ -117,20 +95,10 @@ public class UsuarioService {
                         usuario.getTelefono(),
                         usuario.getDireccion(),
                         usuario.getFechaRegistro(),
+                        usuario.getFechaModificacion(),
                         usuario.getRol()
                 )).orElse(null);
     }
-
-    /**
-     * Actualiza la información de un usuario en la base de datos mediante su correo electrónico.
-     * - Verifica si el usuario existe antes de actualizarlo.<br>
-     * - Mantiene valores actuales para el ID y la fecha de registro si estos no se proporcionan.<br>
-     * - Guarda los cambios en la base de datos.
-     *
-     * @param email Correo electrónico del usuario a actualizar.
-     * @param userDto Datos actualizados del usuario.
-     * @return `true` si el usuario fue actualizado correctamente, `false` si no se encontró.
-     */
 
     @Transactional
     public boolean actualizarUsuarioPorEmail(String email, UsuarioDto userDto) {
@@ -140,11 +108,8 @@ public class UsuarioService {
             logger.debug("📥 Datos actuales del usuario antes de la actualización: {}", usuario);
             logger.debug("📤 Datos recibidos para actualización: {}", userDto);
 
-            // No modificar el ID si es null
             if (userDto.getId() != null) {
                 usuario.setId(userDto.getId());
-            } else {
-                logger.warn("⚠️ El ID del usuario es null, se mantiene el valor actual.");
             }
 
             usuario.setNombre(userDto.getNombre());
@@ -153,11 +118,8 @@ public class UsuarioService {
             usuario.setDireccion(userDto.getDireccion());
             usuario.setRol(userDto.getRol());
 
-            // Verificar si fechaRegistro es null, si lo es mantener el valor actual
             if (userDto.getFechaRegistro() != null) {
                 usuario.setFechaRegistro(userDto.getFechaRegistro());
-            } else {
-                logger.warn("⚠️ `fechaRegistro` es null, manteniendo el valor anterior: {}", usuario.getFechaRegistro());
             }
 
             usuarioRepository.save(usuario);
@@ -168,16 +130,6 @@ public class UsuarioService {
             return false;
         });
     }
-
-    /**
-     * Elimina un usuario de la base de datos mediante su correo electrónico.
-     * - Verifica si el usuario existe antes de eliminarlo.<br>
-     * - Si el usuario se encuentra, lo elimina y devuelve `true`.<br>
-     * - Si no se encuentra, devuelve `false`.
-     *
-     * @param email Correo electrónico del usuario a eliminar.
-     * @return `true` si el usuario fue eliminado correctamente, `false` si no se encontró.
-     */
 
     @Transactional
     public boolean eliminarUsuarioPorEmail(String email) {
@@ -190,5 +142,56 @@ public class UsuarioService {
             logger.warn("⚠️ No se encontró usuario con email: {} para eliminar", email);
             return false;
         });
+    }
+
+    /**
+     * Envia un enlace de recuperación de contraseña al correo del usuario.
+     * Genera y guarda un token temporal en la base de datos.
+     */
+    @Transactional
+    public void enviarEnlaceCambioContrasenia(String email) throws Exception {
+        UsuarioModel usuario = usuarioRepository.findByEmail(email)
+                .orElseThrow(() -> new Exception("No se encontró usuario con ese email"));
+
+        // Buscar y eliminar token existente si lo hay
+        Optional<PasswordResetToken> tokenExistente = tokenRepository.findByEmail(email);
+        tokenExistente.ifPresent(tokenRepository::delete);
+
+        // Crear nuevo token
+        String token = UUID.randomUUID().toString();
+        LocalDateTime expiracion = LocalDateTime.now().plusMinutes(10);
+
+        PasswordResetToken nuevoToken = new PasswordResetToken();
+        nuevoToken.setEmail(email);
+        nuevoToken.setToken(token);
+        nuevoToken.setExpiracion(expiracion);
+
+        tokenRepository.save(nuevoToken);
+
+        // Generar enlace de recuperación
+        String link = "http://localhost:8080/cambiar-contrasenia?token=" + token;
+
+        String asunto = "🔐 Recuperación de contraseña - Terra Nostra";
+        String cuerpoHtml = """
+        <div style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
+            <h2 style="color: #F18817;">🔐 Recuperación de contraseña</h2>
+            <p>Hola <strong>%s</strong>,</p>
+            <p>Haz clic en el siguiente botón para cambiar tu contraseña:</p>
+            <p style="text-align: center;">
+                <a href="%s" style="display: inline-block; padding: 12px 24px;
+                   background-color: #F18817; color: white; text-decoration: none;
+                   border-radius: 5px; font-weight: bold;">
+                   Cambiar contraseña
+                </a>
+            </p>
+            <p>Este enlace expirará en 10 minutos.</p>
+            <hr style="margin-top: 30px;">
+            <p style="font-size: 12px; color: #888;">
+                © 2025 Terra Nostra · No responder a este correo automático.
+            </p>
+        </div>
+        """.formatted(usuario.getNombre(), link);
+
+        correoService.enviarCorreo(email, asunto, cuerpoHtml);
     }
 }

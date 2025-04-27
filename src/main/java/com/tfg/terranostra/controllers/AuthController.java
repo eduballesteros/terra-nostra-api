@@ -1,12 +1,15 @@
 package com.tfg.terranostra.controllers;
 
+import com.tfg.terranostra.dto.CambioContraseniaDto;
 import com.tfg.terranostra.dto.LoginDto;
 import com.tfg.terranostra.dto.UsuarioDto;
 import com.tfg.terranostra.repositories.UsuarioRepository;
 import com.tfg.terranostra.services.AuthService;
+import com.tfg.terranostra.services.PasswordResetTokenService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,6 +33,10 @@ public class AuthController {
 
     @Autowired
     private AuthService authService;
+
+    @Autowired
+    private PasswordResetTokenService passwordResetTokenService;
+
 
     /**
      * Maneja el inicio de sesión de los usuarios.
@@ -58,4 +65,25 @@ public class AuthController {
 
         return ResponseEntity.ok(usuarioDto);
     }
+
+
+    @GetMapping("/validar-token")
+    public ResponseEntity<Boolean> validarToken(@RequestParam String token) {
+        boolean esValido = passwordResetTokenService.validarToken(token);
+        return ResponseEntity.ok(esValido);
+    }
+
+    @PutMapping("/cambiar-password")
+    public ResponseEntity<String> cambiarContrasenia(@RequestBody CambioContraseniaDto cambioContraseniaDto) {
+        boolean exito = authService.cambiarContrasenia(cambioContraseniaDto);
+
+        if (exito) {
+            return ResponseEntity.ok("✅ Contraseña cambiada exitosamente.");
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("❌ Token inválido o expirado.");
+        }
+    }
+
+
+
 }

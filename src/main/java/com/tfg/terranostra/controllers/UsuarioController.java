@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/usuario")
@@ -162,6 +163,21 @@ public class UsuarioController {
         } catch (Exception e) {
             logger.error("❌ Error al eliminar usuario con email: {}", email, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al eliminar usuario");
+        }
+    }
+
+    @PostMapping("/solicitar-cambio")
+    public ResponseEntity<String> solicitarCambioContrasenia(@RequestBody Map<String, String> body) {
+        String email = body.get("email");
+
+        logger.info("📩 Solicitud de cambio de contraseña para: {}", email);
+
+        try {
+            usuarioService.enviarEnlaceCambioContrasenia(email);
+            return ResponseEntity.ok("📨 Se ha enviado un enlace de cambio de contraseña.");
+        } catch (Exception e) {
+            logger.error("❌ Error al enviar enlace de recuperación: {}", e.getMessage());
+            return ResponseEntity.status(404).body("❌ Usuario no encontrado con ese email.");
         }
     }
 }
