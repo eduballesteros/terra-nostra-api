@@ -2,6 +2,7 @@ package com.tfg.terranostra.controllers;
 
 import com.tfg.terranostra.dto.CambioContraseniaDto;
 import com.tfg.terranostra.dto.LoginDto;
+import com.tfg.terranostra.dto.TokenGoogleDto;
 import com.tfg.terranostra.dto.UsuarioDto;
 import com.tfg.terranostra.repositories.UsuarioRepository;
 import com.tfg.terranostra.services.AuthService;
@@ -84,6 +85,12 @@ public class AuthController {
         }
     }
 
-
-
+    @PostMapping("/login-google")
+    public ResponseEntity<?> loginConGoogle(@RequestBody TokenGoogleDto tokenGoogleDto) {
+        try {
+            return authService.loginConGoogle(tokenGoogleDto);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error en el login con Google: " + e.getMessage());
+        }
+    }
 }
