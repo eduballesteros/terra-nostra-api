@@ -4,22 +4,15 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "productos")
 @Data
-
-/**
- * Entidad que representa un producto en la base de datos.
- * Contiene los atributos necesarios para gestionar los productos en la aplicación.
- *
- * @author ebp
- * @version 1.0
- */
-
 public class ProductoModel {
 
     @Id
@@ -30,8 +23,12 @@ public class ProductoModel {
     @NotBlank(message = "El nombre no puede estar vacío.")
     private String nombre;
 
-    @Column(nullable = false)
-    @NotBlank(message = "La descripción no puede estar vacía.")
+    @Column(name = "descripcion_breve", nullable = false, length = 255)
+    @NotBlank(message = "La descripción breve no puede estar vacía.")
+    private String descripcionBreve;
+
+    @Lob
+    @Column(name = "descripcion", nullable = false, columnDefinition = "TEXT")
     private String descripcion;
 
     @Column(nullable = false)
@@ -49,8 +46,28 @@ public class ProductoModel {
     private String categoria;
 
     @Lob
-    @Column(name = "imagen", columnDefinition = "LONGBLOB") // Para MySQL
-    @Basic(fetch = FetchType.LAZY) // Carga diferida para optimizar rendimiento
+    @Column(name = "imagen", columnDefinition = "LONGBLOB")
+    @Basic(fetch = FetchType.LAZY)
     private byte[] imagen;
 
+    @Column(precision = 5, scale = 2)
+    @PositiveOrZero(message = "El descuento debe ser un valor positivo.")
+    private BigDecimal descuento;
+
+    @Column(name = "fecha_alta", updatable = false)
+    private LocalDateTime fechaAlta;
+
+    @Column(name = "fecha_modificacion")
+    private LocalDateTime fechaModificacion;
+
+    @PrePersist
+    public void prePersist() {
+        fechaAlta = LocalDateTime.now();
+        fechaModificacion = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    public void preUpdate() {
+        fechaModificacion = LocalDateTime.now();
+    }
 }

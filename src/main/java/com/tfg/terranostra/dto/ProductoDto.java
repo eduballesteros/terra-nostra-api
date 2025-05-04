@@ -6,25 +6,22 @@ import jakarta.persistence.Lob;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
 @Data
-
-/**
- * Data Transfer Object (DTO) para representar un producto en la aplicación.
- * Contiene los datos necesarios para la gestión de productos, incluyendo validaciones.
- *
- * @author ebp
- * @version 1.0
- */
-
 public class ProductoDto {
 
     private Long id;
 
     @NotBlank(message = "El nombre no puede estar vacío")
     private String nombre;
+
+    @NotBlank(message = "La descripción breve no puede estar vacía")
+    private String descripcionBreve;
 
     @NotBlank(message = "La descripción no puede estar vacía")
     private String descripcion;
@@ -44,4 +41,10 @@ public class ProductoDto {
     @Basic(fetch = FetchType.LAZY)
     private byte[] imagen;
 
+    @PositiveOrZero(message = "El descuento debe ser un valor positivo o cero")
+    private BigDecimal descuento;
+
+    private LocalDateTime fechaAlta;
+
+    private LocalDateTime fechaModificacion;
 }
