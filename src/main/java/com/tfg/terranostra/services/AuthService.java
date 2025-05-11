@@ -67,11 +67,11 @@ public class AuthService {
                 usuarioModel.getContrasenia(),
                 usuarioModel.getTelefono(),
                 usuarioModel.getDireccion(),
+                usuarioModel.isCorreoVerificado(),            // ✔️ añadido y en orden correcto
                 usuarioModel.getFechaRegistro(),
                 usuarioModel.getFechaModificacion(),
                 usuarioModel.getRol()
         );
-
 
         UserDetails userDetails = User.withUsername(usuarioModel.getEmail())
                 .password(usuarioModel.getContrasenia())
@@ -85,6 +85,7 @@ public class AuthService {
 
         return usuarioDto;
     }
+
 
     @Transactional
     public boolean cambiarContrasenia(CambioContraseniaDto dto) {
@@ -162,7 +163,8 @@ public class AuthService {
                 usuario.setApellido(apellido);
                 usuario.setEmail(email);
                 usuario.setContrasenia(passwordEncoder.encode("login_google")); // Puedes usar algo por defecto
-                usuario.setRol("USUARIO"); // Rol por defecto
+                usuario.setRol("USUARIO");
+                usuario.setCorreoVerificado(true); // Google login = verificado automáticamente
                 usuario.setFechaRegistro(LocalDateTime.now());
                 usuario.setFechaModificacion(LocalDateTime.now());
                 usuarioRepository.save(usuario);
@@ -183,7 +185,7 @@ public class AuthService {
 
             logger.info("🔐 Usuario autenticado correctamente en SecurityContext: {}", usuario.getEmail());
 
-            // Devuelve un objeto UsuarioDto si quieres (como ya haces en login normal)
+            // Devuelve el DTO en orden correcto
             UsuarioDto usuarioDto = new UsuarioDto(
                     usuario.getId(),
                     usuario.getNombre(),
@@ -192,6 +194,7 @@ public class AuthService {
                     usuario.getContrasenia(),
                     usuario.getTelefono(),
                     usuario.getDireccion(),
+                    usuario.isCorreoVerificado(),           // ✅ Añadido y en orden correcto
                     usuario.getFechaRegistro(),
                     usuario.getFechaModificacion(),
                     usuario.getRol()
@@ -204,4 +207,5 @@ public class AuthService {
             return ResponseEntity.status(500).body("Error interno en el login con Google: " + e.getMessage());
         }
     }
+
 }

@@ -159,8 +159,8 @@
                     "Tés e Infusiones Naturales",
                     "Superalimentos",
                     "Alimentación Saludable",
-                    "Cosmética Natural", // opcional / futuro
-                    "Bienestar y Relax"  // futuro
+                    "Cosmética Natural",
+                    "Bienestar y Relax"
             );
         }
 

@@ -1,13 +1,14 @@
 package com.tfg.terranostra.services;
 
 import com.tfg.terranostra.dto.UsuarioDto;
+import com.tfg.terranostra.models.CorreoVerificacionToken;
 import com.tfg.terranostra.models.PasswordResetToken;
 import com.tfg.terranostra.models.UsuarioModel;
+import com.tfg.terranostra.repositories.CorreoVerificacionTokenRepository;
 import com.tfg.terranostra.repositories.PasswordResetTokenRepository;
 import com.tfg.terranostra.repositories.UsuarioRepository;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -41,6 +42,10 @@ public class UsuarioService {
     @Autowired
     private CorreoService correoService;
 
+    @Autowired
+    private CorreoVerificacionTokenRepository correoVerificacionTokenRepository;
+
+
     @Transactional
     public UsuarioModel aniadirUsuario(@Valid UsuarioDto userDto) {
         logger.info("🟢 Intentando registrar un nuevo usuario con email: {}", userDto.getEmail());
@@ -58,13 +63,21 @@ public class UsuarioService {
         user.setDireccion(userDto.getDireccion());
         user.setTelefono(userDto.getTelefono());
         user.setFechaRegistro(userDto.getFechaRegistro());
+        user.setCorreoVerificado(false);
         user.setRol("ROLE_USER");
 
         UsuarioModel savedUser = usuarioRepository.save(user);
         logger.info("✅ Usuario registrado con éxito: {}", savedUser.getEmail());
 
+        try {
+            enviarEnlaceVerificacionCuenta(savedUser.getEmail());
+        } catch (Exception e) {
+            logger.error("❌ Error al enviar correo de verificación: {}", e.getMessage());
+        }
+
         return savedUser;
     }
+
 
     @Transactional(readOnly = true)
     public List<UsuarioDto> obtenerTodos() {
@@ -75,30 +88,40 @@ public class UsuarioService {
                         usuario.getNombre(),
                         usuario.getApellido(),
                         usuario.getEmail(),
+                        usuario.getContrasenia(),
                         usuario.getTelefono(),
                         usuario.getDireccion(),
+                        usuario.isCorreoVerificado(),
                         usuario.getFechaRegistro(),
                         usuario.getFechaModificacion(),
                         usuario.getRol()
-                )).collect(Collectors.toList());
+                ))
+                .collect(Collectors.toList());
     }
+
+
 
     @Transactional(readOnly = true)
     public UsuarioDto obtenerPorEmail(String email) {
         logger.info("🔍 Buscando usuario por email: {}", email);
+
         return usuarioRepository.findByEmail(email)
                 .map(usuario -> new UsuarioDto(
                         usuario.getId(),
                         usuario.getNombre(),
                         usuario.getApellido(),
                         usuario.getEmail(),
+                        usuario.getContrasenia(),
                         usuario.getTelefono(),
                         usuario.getDireccion(),
+                        usuario.isCorreoVerificado(),
                         usuario.getFechaRegistro(),
                         usuario.getFechaModificacion(),
                         usuario.getRol()
-                )).orElse(null);
+                ))
+                .orElse(null);
     }
+
 
     @Transactional
     public boolean actualizarUsuarioPorEmail(String email, UsuarioDto userDto) {
@@ -117,6 +140,7 @@ public class UsuarioService {
             usuario.setTelefono(userDto.getTelefono());
             usuario.setDireccion(userDto.getDireccion());
             usuario.setRol(userDto.getRol());
+            usuario.setFechaModificacion(LocalDateTime.now());
 
             if (userDto.getFechaRegistro() != null) {
                 usuario.setFechaRegistro(userDto.getFechaRegistro());
@@ -194,4 +218,81 @@ public class UsuarioService {
 
         correoService.enviarCorreo(email, asunto, cuerpoHtml);
     }
+
+    @Transactional
+    public void enviarEnlaceVerificacionCuenta(String email) throws Exception {
+        logger.info("📨 Iniciando proceso de envío de verificación para: {}", email);
+
+        UsuarioModel usuario = usuarioRepository.findByEmail(email)
+                .orElseThrow(() -> new Exception("No se encontró usuario con ese email: " + email));
+
+        if (usuario.isCorreoVerificado()) {
+            logger.info("ℹ️ El usuario {} ya tiene el correo verificado. No se enviará nada.", email);
+            return;
+        }
+
+        correoVerificacionTokenRepository.findByEmail(email)
+                .ifPresent(token -> {
+                    logger.info("♻️ Eliminando token anterior para: {}", email);
+                    correoVerificacionTokenRepository.delete(token);
+                });
+
+        String token = null;
+        int intentos = 0;
+        final int maxIntentos = 3;
+        boolean guardado = false;
+
+        while (!guardado && intentos < maxIntentos) {
+            token = UUID.randomUUID().toString();
+            CorreoVerificacionToken nuevoToken = new CorreoVerificacionToken();
+            nuevoToken.setEmail(email);
+            nuevoToken.setToken(token);
+            nuevoToken.setExpiracion(LocalDateTime.now().plusMinutes(30));
+
+            try {
+                correoVerificacionTokenRepository.save(nuevoToken);
+                guardado = true;
+                logger.info("✅ Token generado y guardado: {}", token);
+            } catch (Exception e) {
+                intentos++;
+                logger.warn("⚠️ Error al guardar token (intento {}). Probablemente duplicado. Regenerando...", intentos);
+                if (intentos == maxIntentos) {
+                    logger.error("❌ No se pudo generar un token único tras {} intentos", maxIntentos);
+                    throw new Exception("No se pudo generar un token único para verificación.");
+                }
+            }
+        }
+
+        String link = "http://localhost:8081/verificacion/confirmar?token=" + token;
+        String asunto = "📩 Verifica tu cuenta en Terra Nostra";
+
+        String cuerpoHtml = """
+    <div style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
+        <h2 style="color: #F18817;">📩 Verificación de correo</h2>
+        <p>Hola <strong>%s</strong>,</p>
+        <p>Gracias por registrarte en Terra Nostra. Haz clic en el siguiente botón para verificar tu cuenta:</p>
+        <p style="text-align: center;">
+            <a href="%s" style="display: inline-block; padding: 12px 24px;
+               background-color: #28a745; color: white; text-decoration: none;
+               border-radius: 5px; font-weight: bold;">
+               Verificar cuenta
+            </a>
+        </p>
+        <p>Este enlace expirará en 30 minutos.</p>
+        <hr style="margin-top: 30px;">
+        <p style="font-size: 12px; color: #888;">
+            © 2025 Terra Nostra · No responder a este correo automático.
+        </p>
+    </div>
+    """.formatted(usuario.getNombre(), link);
+
+        try {
+            correoService.enviarCorreo(email, asunto, cuerpoHtml);
+            logger.info("✉️ Correo de verificación enviado correctamente a {}", email);
+        } catch (Exception e) {
+            logger.error("❌ Error al enviar el correo a {}: {}", email, e.getMessage(), e);
+            throw new Exception("Error al enviar el correo de verificación", e);
+        }
+    }
+
 }

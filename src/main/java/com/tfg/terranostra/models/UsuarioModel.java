@@ -45,6 +45,9 @@ public class UsuarioModel {
     private String telefono;
 
     @Column
+    private boolean correoVerificado ;
+
+    @Column
     private LocalDateTime fechaRegistro;
 
     @Column
