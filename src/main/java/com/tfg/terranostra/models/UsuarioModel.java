@@ -28,7 +28,7 @@ public class UsuarioModel {
     @NotBlank(message = "El apellido no puede estar vacío")
     private String apellido;
 
-    @Column(unique = true) // Asegura que el email no se repita en la BD
+    @Column(unique = true)
     @NotBlank(message = "El correo no puede estar vacío")
     @Email(message = "Debe ser un correo válido")
     private String email;
@@ -44,8 +44,8 @@ public class UsuarioModel {
     @Column
     private String telefono;
 
-    @Column
-    private boolean correoVerificado ;
+    @Column(name = "correo_verificado")
+    private Boolean correoVerificado;
 
     @Column
     private LocalDateTime fechaRegistro;

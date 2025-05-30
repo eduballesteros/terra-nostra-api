@@ -59,6 +59,12 @@ public class AuthService {
             return null;
         }
 
+        // ⚠️ Comprobación segura del correo verificado
+        if (!Boolean.TRUE.equals(usuarioModel.getCorreoVerificado())) {
+            logger.warn("⚠️ Usuario no tiene correo verificado: {}", loginDto.getEmail());
+            return null;
+        }
+
         UsuarioDto usuarioDto = new UsuarioDto(
                 usuarioModel.getId(),
                 usuarioModel.getNombre(),
@@ -67,7 +73,7 @@ public class AuthService {
                 usuarioModel.getContrasenia(),
                 usuarioModel.getTelefono(),
                 usuarioModel.getDireccion(),
-                usuarioModel.isCorreoVerificado(),            // ✔️ añadido y en orden correcto
+                usuarioModel.getCorreoVerificado(),
                 usuarioModel.getFechaRegistro(),
                 usuarioModel.getFechaModificacion(),
                 usuarioModel.getRol()
@@ -86,7 +92,6 @@ public class AuthService {
         return usuarioDto;
     }
 
-
     @Transactional
     public boolean cambiarContrasenia(CambioContraseniaDto dto) {
         logger.info("🔁 Intentando cambiar la contraseña con token: {}", dto.getToken());
@@ -100,12 +105,12 @@ public class AuthService {
 
         PasswordResetToken token = tokenOpt.get();
 
-        if (token.getExpiracion().isBefore(LocalDateTime.now())) { // <-- Cambiado aquí
+        if (token.getExpiracion().isBefore(LocalDateTime.now())) {
             logger.warn("❌ Token expirado: {}", dto.getToken());
             return false;
         }
 
-        Optional<UsuarioModel> usuarioOpt = usuarioRepository.findByEmail(token.getEmail()); // <-- Buscamos por email
+        Optional<UsuarioModel> usuarioOpt = usuarioRepository.findByEmail(token.getEmail());
 
         if (usuarioOpt.isEmpty()) {
             logger.error("❌ No existe un usuario asociado al email: {}", token.getEmail());
@@ -117,7 +122,6 @@ public class AuthService {
         usuario.setFechaModificacion(LocalDateTime.now());
 
         usuarioRepository.save(usuario);
-
         tokenRepository.delete(token);
 
         logger.info("✅ Contraseña actualizada exitosamente para el usuario: {}", usuario.getEmail());
@@ -157,14 +161,13 @@ public class AuthService {
                 usuario = usuarioExistente.get();
                 logger.info("✅ Usuario ya registrado. Procediendo al login: {}", email);
             } else {
-                // Crear nuevo usuario si no existe
                 usuario = new UsuarioModel();
                 usuario.setNombre(nombre);
                 usuario.setApellido(apellido);
                 usuario.setEmail(email);
-                usuario.setContrasenia(passwordEncoder.encode("login_google")); // Puedes usar algo por defecto
+                usuario.setContrasenia(passwordEncoder.encode("login_google"));
                 usuario.setRol("USUARIO");
-                usuario.setCorreoVerificado(true); // Google login = verificado automáticamente
+                usuario.setCorreoVerificado(true); // Google login = ya verificado
                 usuario.setFechaRegistro(LocalDateTime.now());
                 usuario.setFechaModificacion(LocalDateTime.now());
                 usuarioRepository.save(usuario);
@@ -172,7 +175,6 @@ public class AuthService {
                 logger.info("🆕 Nuevo usuario registrado por Google: {}", email);
             }
 
-            // Establecer autenticación manualmente
             UserDetails userDetails = User.withUsername(usuario.getEmail())
                     .password(usuario.getContrasenia())
                     .roles(usuario.getRol())
@@ -182,10 +184,8 @@ public class AuthService {
                     new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
 
             SecurityContextHolder.getContext().setAuthentication(authToken);
-
             logger.info("🔐 Usuario autenticado correctamente en SecurityContext: {}", usuario.getEmail());
 
-            // Devuelve el DTO en orden correcto
             UsuarioDto usuarioDto = new UsuarioDto(
                     usuario.getId(),
                     usuario.getNombre(),
@@ -194,7 +194,7 @@ public class AuthService {
                     usuario.getContrasenia(),
                     usuario.getTelefono(),
                     usuario.getDireccion(),
-                    usuario.isCorreoVerificado(),           // ✅ Añadido y en orden correcto
+                    usuario.getCorreoVerificado(),
                     usuario.getFechaRegistro(),
                     usuario.getFechaModificacion(),
                     usuario.getRol()
@@ -207,5 +207,4 @@ public class AuthService {
             return ResponseEntity.status(500).body("Error interno en el login con Google: " + e.getMessage());
         }
     }
-
 }

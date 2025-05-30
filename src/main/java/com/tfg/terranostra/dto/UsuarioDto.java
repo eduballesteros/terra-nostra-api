@@ -43,7 +43,7 @@ public class UsuarioDto {
     private String telefono;
     private String direccion;
 
-    @JsonProperty("correoVerificado")
+    @JsonProperty("correo_verificado")
     private boolean correoVerificado;
 
     @JsonProperty("fechaRegistro")

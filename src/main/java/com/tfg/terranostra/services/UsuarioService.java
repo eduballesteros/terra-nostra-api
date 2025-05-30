@@ -4,9 +4,7 @@ import com.tfg.terranostra.dto.UsuarioDto;
 import com.tfg.terranostra.models.CorreoVerificacionToken;
 import com.tfg.terranostra.models.PasswordResetToken;
 import com.tfg.terranostra.models.UsuarioModel;
-import com.tfg.terranostra.repositories.CorreoVerificacionTokenRepository;
-import com.tfg.terranostra.repositories.PasswordResetTokenRepository;
-import com.tfg.terranostra.repositories.UsuarioRepository;
+import com.tfg.terranostra.repositories.*;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -29,6 +27,15 @@ public class UsuarioService {
 
     @Autowired
     private UsuarioRepository usuarioRepository;
+
+    @Autowired
+    private CarritoRepository carritoRepository;
+
+    @Autowired
+    private PedidoRepository pedidoRepository;
+
+    @Autowired
+    private ReseniaRepository reseniaRepository;
 
     @Autowired
     private PasswordResetTokenRepository tokenRepository;
@@ -91,7 +98,7 @@ public class UsuarioService {
                         usuario.getContrasenia(),
                         usuario.getTelefono(),
                         usuario.getDireccion(),
-                        usuario.isCorreoVerificado(),
+                        usuario.getCorreoVerificado(),
                         usuario.getFechaRegistro(),
                         usuario.getFechaModificacion(),
                         usuario.getRol()
@@ -114,7 +121,7 @@ public class UsuarioService {
                         usuario.getContrasenia(),
                         usuario.getTelefono(),
                         usuario.getDireccion(),
-                        usuario.isCorreoVerificado(),
+                        usuario.getCorreoVerificado(),
                         usuario.getFechaRegistro(),
                         usuario.getFechaModificacion(),
                         usuario.getRol()
@@ -158,15 +165,44 @@ public class UsuarioService {
     @Transactional
     public boolean eliminarUsuarioPorEmail(String email) {
         logger.info("🗑️ Intentando eliminar usuario con email: {}", email);
+
         return usuarioRepository.findByEmail(email).map(usuario -> {
+            // Verifica si es ADMIN
+            String rolUsuario = usuario.getRol() != null ? usuario.getRol().trim().toUpperCase() : "";
+
+            if ("ROLE_ADMIN".equals(rolUsuario)) {
+                long totalAdmins = usuarioRepository.findAll().stream()
+                        .filter(u -> "ROLE_ADMIN".equalsIgnoreCase(
+                                u.getRol() != null ? u.getRol().trim() : ""))
+                        .count();
+
+                if (totalAdmins <= 1) {
+                    logger.warn("⛔ No se puede eliminar al último usuario ROLE_ADMIN: {}", email);
+                    throw new IllegalStateException("No se puede eliminar al último usuario ADMIN.");
+                }
+            }
+
+
+            Long usuarioId = usuario.getId();
+
+            // 🧹 Eliminar datos relacionados
+            carritoRepository.deleteByUsuarioId(usuarioId);
+            pedidoRepository.deleteByUsuarioId(usuarioId);
+            reseniaRepository.deleteByUsuarioId(usuarioId);
+            // Aquí puedes agregar más entidades si las tienes
+
+            // 🔥 Eliminar el usuario
             usuarioRepository.delete(usuario);
-            logger.info("✅ Usuario con email {} eliminado correctamente", email);
+            logger.info("✅ Usuario con email {} y datos relacionados eliminados correctamente", email);
             return true;
+
         }).orElseGet(() -> {
             logger.warn("⚠️ No se encontró usuario con email: {} para eliminar", email);
             return false;
         });
     }
+
+
 
     /**
      * Envia un enlace de recuperación de contraseña al correo del usuario.
@@ -226,7 +262,7 @@ public class UsuarioService {
         UsuarioModel usuario = usuarioRepository.findByEmail(email)
                 .orElseThrow(() -> new Exception("No se encontró usuario con ese email: " + email));
 
-        if (usuario.isCorreoVerificado()) {
+        if (usuario.getCorreoVerificado()) {
             logger.info("ℹ️ El usuario {} ya tiene el correo verificado. No se enviará nada.", email);
             return;
         }
