@@ -17,9 +17,7 @@ import java.time.LocalDateTime;
  * un usuario solo puede dejar una reseña por producto.
  */
 @Entity
-@Table(name = "resenas", uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"usuario_id", "producto_id"})
-})
+@Table(name = "resenas") // 🔥 Eliminado uniqueConstraints
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -29,16 +27,10 @@ public class ReseniaModel {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    /**
-     * Usuario que escribe la reseña.
-     */
     @ManyToOne
     @JoinColumn(name = "usuario_id", nullable = false)
     private UsuarioModel usuario;
 
-    /**
-     * Producto al que está asociada la reseña.
-     */
     @ManyToOne
     @JoinColumn(name = "producto_id", nullable = false)
     private ProductoModel producto;
@@ -52,3 +44,4 @@ public class ReseniaModel {
     @Column(nullable = false)
     private LocalDateTime fecha;
 }
+

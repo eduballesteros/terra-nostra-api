@@ -38,7 +38,7 @@ public class ProductoModel {
 
     @Column(nullable = false)
     @NotNull(message = "La cantidad en stock no puede estar vacía.")
-    @Positive(message = "La cantidad en stock debe ser un valor positivo.")
+    @PositiveOrZero(message = "La cantidad en stock debe ser un valor positivo o cero.")
     private int stock;
 
     @Column

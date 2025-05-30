@@ -2,7 +2,6 @@ package com.tfg.terranostra.services;
 
 import com.tfg.terranostra.dto.CrearPedidoDto;
 import com.tfg.terranostra.dto.PedidoDto;
-import com.tfg.terranostra.dto.ProductoCantidadDto;
 import com.tfg.terranostra.dto.ProductoPedidoDto;
 import com.tfg.terranostra.models.*;
 import com.tfg.terranostra.repositories.PedidoRepository;
@@ -15,6 +14,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class PedidoService {
@@ -57,18 +57,27 @@ public class PedidoService {
         List<ProductoPedidoModel> listaProductos = new ArrayList<>();
         BigDecimal total = BigDecimal.ZERO;
 
-        for (ProductoCantidadDto item : dto.getProductos()) {
+        for (ProductoPedidoDto item : dto.getProductos()) {
             ProductoModel producto = productoRepository.findById(item.getProductoId())
                     .orElseThrow(() -> new RuntimeException("Producto no encontrado: " + item.getProductoId()));
+
+            // Comprobar si hay suficiente stock
+            if (producto.getStock() < item.getCantidad()) {
+                throw new RuntimeException("Stock insuficiente para el producto: " + producto.getNombre());
+            }
+
+            // Restar stock
+            producto.setStock(producto.getStock() - item.getCantidad());
+            productoRepository.save(producto);
 
             ProductoPedidoModel productoPedido = new ProductoPedidoModel();
             productoPedido.setPedido(pedido);
             productoPedido.setProducto(producto);
             productoPedido.setCantidad(item.getCantidad());
+            productoPedido.setPrecioUnitario(BigDecimal.valueOf(item.getPrecioUnitario()));
 
             listaProductos.add(productoPedido);
-
-            total = total.add(producto.getPrecio().multiply(BigDecimal.valueOf(item.getCantidad())));
+            total = total.add(productoPedido.getPrecioUnitario().multiply(BigDecimal.valueOf(item.getCantidad())));
         }
 
         pedido.setListaProductos(listaProductos);
@@ -76,6 +85,8 @@ public class PedidoService {
 
         return pedidoRepository.save(pedido);
     }
+
+
 
     /**
      * Convierte un PedidoModel (entidad de base de datos) en un PedidoDto limpio
@@ -107,11 +118,30 @@ public class PedidoService {
             ProductoPedidoDto pDto = new ProductoPedidoDto();
             pDto.setProductoId(productoPedido.getProducto().getId());
             pDto.setCantidad(productoPedido.getCantidad());
-            // pDto.setNombreProducto(productoPedido.getProducto().getNombre()); // opcional
+            pDto.setNombre(productoPedido.getProducto().getNombre());
+            pDto.setPrecioUnitario(productoPedido.getPrecioUnitario().doubleValue());
             productosDto.add(pDto);
         }
 
         dto.setProductos(productosDto);
         return dto;
     }
+
+
+    public List<PedidoDto> obtenerPedidosPorUsuario(Long usuarioId) {
+        List<PedidoModel> pedidos = pedidoRepository.findByUsuarioId(usuarioId);
+
+        return pedidos.stream()
+                .map(this::convertirAPedidoDto)
+                .collect(Collectors.toList());
+    }
+
+    public PedidoDto obtenerPedidoPorId(Long pedidoId) {
+        PedidoModel pedido = pedidoRepository.findById(pedidoId)
+                .orElseThrow(() -> new RuntimeException("Pedido no encontrado con ID: " + pedidoId));
+
+        return convertirAPedidoDto(pedido);
+    }
+
+
 }

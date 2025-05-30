@@ -160,7 +160,8 @@
                     "Superalimentos",
                     "Alimentación Saludable",
                     "Cosmética Natural",
-                    "Bienestar y Relax"
+                    "Bienestar y Relax",
+                    "Packs y Regalos Naturales"
             );
         }
 

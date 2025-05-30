@@ -29,11 +29,25 @@ public class ReseniaController {
     public ResponseEntity<ReseniaDto> crearResenia(@RequestBody CrearReseniaDto dto) {
         ReseniaModel nueva = reseniaService.crearResenia(dto);
         ReseniaDto respuesta = reseniaService.convertirAReseniaDto(nueva);
-        return ResponseEntity.ok(respuesta);
+        return ResponseEntity.status(201).body(respuesta);
     }
 
-    // Más adelante puedes añadir:
-    // - GET /api/resenias/producto/{id}
-    // - DELETE /api/resenias/{id}
-    // - GET /api/resenias/usuario/{id}
+    /**
+     * Obtiene todas las reseñas asociadas a un producto.
+     *
+     * @param productoId ID del producto
+     * @return Lista de reseñas en formato DTO
+     */
+    @GetMapping("/producto/{productoId}")
+    public ResponseEntity<?> obtenerReseniasPorProducto(@PathVariable Long productoId) {
+        try {
+            return ResponseEntity.ok(reseniaService.obtenerReseniasPorProducto(productoId));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(
+                    java.util.Map.of("mensaje", e.getMessage())
+            );
+        }
+    }
+
+
 }

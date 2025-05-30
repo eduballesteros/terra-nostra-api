@@ -31,7 +31,7 @@ public class ProductoDto {
     private BigDecimal precio;
 
     @NotNull(message = "La cantidad en stock no puede estar vacía")
-    @Positive(message = "La cantidad en stock debe ser positiva")
+    @PositiveOrZero(message = "La cantidad en stock debe ser positiva")
     private int stock;
 
     @NotBlank(message = "La categoría no puede estar vacía")

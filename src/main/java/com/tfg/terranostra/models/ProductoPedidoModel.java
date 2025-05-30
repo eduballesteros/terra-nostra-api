@@ -1,12 +1,12 @@
 package com.tfg.terranostra.models;
 
-import com.tfg.terranostra.dto.ProductoCantidadDto;
+
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 
-import java.util.List;
+
 
 @Entity
 @Table(name = "producto_pedido")
@@ -29,4 +29,7 @@ public class ProductoPedidoModel {
 
     private int cantidad;
 
+    @Column(name = "precio_unitario", nullable = false)
+    private java.math.BigDecimal precioUnitario;
 }
+

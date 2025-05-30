@@ -200,10 +200,22 @@
             }
         }
 
+        @GetMapping("/redirigir/{id}")
+        public ResponseEntity<String> redirigirPorId(@PathVariable Long id) {
+            Optional<ProductoDto> productoOpt = productoService.obtenerProductoPorId(id);
+            if (productoOpt.isPresent()) {
+                ProductoDto producto = productoOpt.get();
+                String nombreSlug = producto.getNombre().toLowerCase().replace(" ", "-").replaceAll("[^a-z0-9-]", "");
+                return ResponseEntity.ok(nombreSlug);
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Producto no encontrado");
+            }
+        }
+
+
         @GetMapping("/categorias")
         public ResponseEntity<List<String>> obtenerCategorias() {
             return ResponseEntity.ok(productoService.obtenerCategorias());
         }
-
 
     }

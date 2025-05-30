@@ -6,11 +6,10 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-
 @Repository
-
 public interface PedidoRepository extends JpaRepository<PedidoModel, Long> {
 
-    List<PedidoModel> findByUsuario(Long usuarioId);
+    List<PedidoModel> findByUsuarioId(Long usuarioId);
 
+    void deleteByUsuarioId(Long usuarioId);
 }

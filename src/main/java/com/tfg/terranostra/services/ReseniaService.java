@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * Servicio para la gestión de resenias de productos.
@@ -39,11 +40,6 @@ public class ReseniaService {
         ProductoModel producto = productoRepository.findById(dto.getProductoId())
                 .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
 
-        // Validación: evitar duplicados
-        if (reseniaRepository.existsByUsuarioAndProducto(usuario, producto)) {
-            throw new RuntimeException("Ya existe una resenia de este usuario para este producto.");
-        }
-
         ReseniaModel resenia = new ReseniaModel();
         resenia.setUsuario(usuario);
         resenia.setProducto(producto);
@@ -72,4 +68,16 @@ public class ReseniaService {
         dto.setFecha(resenia.getFecha());
         return dto;
     }
+
+    public List<ReseniaDto> obtenerReseniasPorProducto(Long productoId) {
+        ProductoModel producto = productoRepository.findById(productoId)
+                .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+
+        List<ReseniaModel> resenias = reseniaRepository.findByProductoOrderByFechaDesc(producto);
+
+        return resenias.stream()
+                .map(this::convertirAReseniaDto)
+                .toList();
+    }
+
 }
